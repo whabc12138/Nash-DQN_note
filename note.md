@@ -190,7 +190,7 @@ self.value_net = PermInvariantQNN(in_invar_dim = self.num_players - 1, non_invar
                               nextstate_val + np.array(reward_list).flatten())).float().cuda())
         # 根据当前状态V值、下一状态V值、奖励计算Vloss
 ```
-同样的近似的来看这个预测vloss的函数，该函数也能看到计算了当前状态的$V(s)$以及下一状态的 $V(s')$ ，以及当前状态的奖励r。根据这三者来计算了Value_net的损失函数。因为计算的是V值，因此不需要输入动作action，就能够完成计算。
+同样的近似的来看这个预测vloss的函数，该函数也能看到计算了当前状态的 $V(s)$ 以及下一状态的 $V(s')$ ，以及当前状态的奖励r。根据这三者来计算了Value_net的损失函数。因为计算的是V值，因此不需要输入动作action，就能够完成计算。
 
 # 总结
 
