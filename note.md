@@ -11,8 +11,8 @@ ac算法中，actor net 和 critic net 是两个不同的网络
 ## critic network
 在c网络中，输入是当前的状态以及从actor network中得到的策略，根据状态和策略，对该策略估计一个V值，**该V值为该策略中每个动作对应的Q值的期望**，用于对actor网络得出的策略进行评估，用于更新actor网络。  
 而critic网络自己使用计算出的V值，与该策略所得到的reward，计算TD-error $TD-error = \gamma * V(s') + r - V(s)$，表示当前状态的估计值和下一状态的真实值之间的误差，用于更新c网络的loss。  
-以上该td-error的计算来自于MDP过程中，Q值与V值之间的转化，原先的$TD = Q(s,a) -V(s)$， 即使用该状态下采取对应的动作对应的Q值，与该状态的V值之间的差值，用于表示当前状态与预期状态之间的差异  
-而利用马尔可夫链后，Q值和V值之间可以相互转化，即$Q(s,a) = V(s') + r$。由此，整个TD-error就可全部使用V值来进行计算。  
+以上该td-error的计算来自于MDP过程中，Q值与V值之间的转化，原先的 $TD = Q(s,a) -V(s)$ ， 即使用该状态下采取对应的动作对应的Q值，与该状态的V值之间的差值，用于表示当前状态与预期状态之间的差异  
+而利用马尔可夫链后，Q值和V值之间可以相互转化，即 $Q(s,a) = V(s') + r$。由此，整个TD-error就可全部使用V值来进行计算。  
 对于这一点，我们能够看到，根据MDP，我们将Q值转化成了V值，计算Q值的时候需要动作，而计算V值只需要状态即可。这也是下文中，Nash-DQN一文中，AC网络能够使用同一个网络类的原因。即Critic网络的输入可以不需要动作action，只根据状态state就能够计算Value函数，过程中不需要计算Q值，最终使用TD-error对Critic网络进行更新，利用V值对Actor网络进行更新。
 
 
@@ -32,12 +32,12 @@ actor网络的目标是最大化策略的V值，该V值的来源是critic网络�
 
 2. 主网络  
 
-    主网络根据上面的输入，通过三个隐藏层，输出优势函数的参数$\mu$和$\{P, \Phi \}$ ，利用两个参数来近似的拟合优势函数A
+    主网络根据上面的输入，通过三个隐藏层，输出优势函数的参数 $\mu$ 和 $\{P, \Phi \}$ ，利用两个参数来近似的拟合优势函数A
 
 ```
 self.action_net = PermInvariantQNN(in_invar_dim = self.num_players - 1, non_invar_dim = 3, out_dim = output_dim,num_moments=num_moms).cuda()
 ```
-在这个代码中，他定义的`action_net`实际上就是用于拟合优势函数的Advantage net， 该网络在定义时，给出了输出的维度`out_dim = output_dim`，这里的`output_dim`的默认值为4，表示最终网络输出4个参数。用于表示输出的优势函数的参数$\mu$和$\{P, \Phi \}$
+在这个代码中，他定义的`action_net`实际上就是用于拟合优势函数的Advantage net， 该网络在定义时，给出了输出的维度`out_dim = output_dim`，这里的`output_dim`的默认值为4，表示最终网络输出4个参数。用于表示输出的优势函数的参数 $\mu$ 和 $\{P, \Phi \}$ 
 
 `num_moments`这个参数的意义是用于保证该网络的输出和`Value_net`的输出不同。在神经网络的定义代码中，该参数表示编码器的输出维度和解码器的输入维度。具体值为什么取5，暂且含义不明。
 
@@ -152,7 +152,7 @@ self.value_net = PermInvariantQNN(in_invar_dim = self.num_players - 1, non_invar
         # 根据优势函数（action），当前价值，下一状态价值，奖励一起计算了action loss
 ```
 
-这一串我们能够看到`predict_action()`计算出的是优势函数的参数列表，在下面定义的四个list分别接收了这些参数，`curVal`表示当前状态对应的V值，也就是$V(s)$ ，`nextVal` 表示下一个状态的$V(s')$， `reward_list`用于存放当前动作的奖励r。通过这四者，即使用了Critic网络，用该网路的输出V，来对Actor网络的更新做出了参考。能够看到最后该函数返回的`action_loss`中，是使用了两个V值来对Actor网络来进行更新。这里使用的是优势函数的方法，代替了上文中介绍AC算法中使用TD-error的方法，但是本质是一样的。
+这一串我们能够看到`predict_action()`计算出的是优势函数的参数列表，在下面定义的四个list分别接收了这些参数，`curVal`表示当前状态对应的V值，也就是 $V(s)$ ，`nextVal`表示下一个状态的 $V(s')$ ， `reward_list`用于存放当前动作的奖励r。通过这四者，即使用了Critic网络，用该网路的输出V，来对Actor网络的更新做出了参考。能够看到最后该函数返回的`action_loss`中，是使用了两个V值来对Actor网络来进行更新。这里使用的是优势函数的方法，代替了上文中介绍AC算法中使用TD-error的方法，但是本质是一样的。
 
 ### Value 更新
 
@@ -190,7 +190,7 @@ self.value_net = PermInvariantQNN(in_invar_dim = self.num_players - 1, non_invar
                               nextstate_val + np.array(reward_list).flatten())).float().cuda())
         # 根据当前状态V值、下一状态V值、奖励计算Vloss
 ```
-同样的近似的来看这个预测vloss的函数，该函数也能看到计算了当前状态的$V(s)$以及下一状态的$V(s')$，以及当前状态的奖励r。根据这三者来计算了Value_net的损失函数。因为计算的是V值，因此不需要输入动作action，就能够完成计算。
+同样的近似的来看这个预测vloss的函数，该函数也能看到计算了当前状态的$V(s)$以及下一状态的 $V(s')$，以及当前状态的奖励r。根据这三者来计算了Value_net的损失函数。因为计算的是V值，因此不需要输入动作action，就能够完成计算。
 
 # 总结
 
